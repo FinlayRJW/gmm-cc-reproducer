@@ -1,0 +1,5 @@
+rootProject.name = 'gmm-cc-reproducer'
+
+(1..150).each { i ->
+    include "lib$i"
+}
