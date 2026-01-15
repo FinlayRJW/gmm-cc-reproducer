@@ -8,7 +8,7 @@ This repository reproduces a Gradle bug where configuration cache (CC) store tim
 
 Running POM or GMM generation tasks is very slow to store in configuration cache when `fromResolutionResult()` is enabled - even with the tasks disabled. This is an issue if you have `publishToMavenLocal` as part of your build.
 
-The root cause is `VersionMappingComponentDependencyResolver.maybeResolveVersion()` - it performs a **full dependency graph traversal for every single dependency/constraint** via `eachElement()`, with no caching between calls.
+I think the root cause is `VersionMappingComponentDependencyResolver.maybeResolveVersion()` - I believe it performs a **full dependency graph traversal for every single dependency/constraint** via `eachElement()`, with no caching between calls.
 
 ```
 Configuration Cache Serialization
@@ -45,17 +45,6 @@ rm -rf .gradle/configuration-cache && ./gradlew generateMetadataFileForMavenPubl
 | `generateMetadataFileForMavenPublication` | Yes | **~30s**   |
 
 > Note: With fromResolutionResult() and configuration cache the total time is around 40s without configuration cache the time is only 1s
-
-## Why CC is Slower Than Non-CC
-
-**Without configuration cache, disabled tasks are skipped entirely and the expensive computation never happens.**
-
-| Mode | Disabled Tasks | Time |
-|------|----------------|------|
-| Without CC | Skipped - task action never runs | ~1s |
-| With CC | Serialized - `Cached<>` fields evaluated | **~40s** |
-
-During CC serialization, Gradle calls `Cached.writeReplace()` on every task in the graph - even disabled ones. This triggers the lazy computation that would never happen in a normal build where disabled tasks are simply skipped.
 
 ## Why Disabling Tasks Doesn't Help
 
