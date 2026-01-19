@@ -2,7 +2,7 @@
 
 This repository reproduces a Gradle bug where configuration cache (CC) store times become extremely slow when running `generatePomFileFor*Publication` or `generateMetadataFileFor*Publication` tasks with `versionMapping { fromResolutionResult() }` enabled.
 
-**Gradle Issue**: tbd
+**Gradle Issue**: https://github.com/gradle/gradle/issues/36332
 
 ## The Problem
 
